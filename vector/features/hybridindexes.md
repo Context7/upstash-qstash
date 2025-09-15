@@ -1,0 +1,304 @@
+On this page
+Dense indexes are useful to perform semantic searches over a dataset to find the most similar items quickly. It relies on the embedding models to generate dense vectors that are similar to each other for similar concepts. And, they do it well for the data or the domain of the data that the embedding model is trained on. But they sometimes fail, especially in the case where the data is out of the training domain of the model. For such cases, a more traditional exact search with sparse vectors performs better. Hybrid indexes allow you to combine the best of these two worlds so that you can get semantically similar results, and enhance them with exact token/word matching to make the query results more relevant. Upstash supports hybrid indexes that manage a dense and a sparse index component for you. When you perform a query, it queries both the dense and the sparse index and fuses the results.
+## 
+​
+Creating Dense And Sparse Vectors
+Since a hybrid index is a combination of a dense and a sparse index, you can use the same methods you have used for dense and sparse indexes, and combine them. Upstash allows you to upsert and query dense and sparse vectors to give you full control over the models you would use. Also, to make embedding easier for you, Upstash provides some hosted models and allows you to upsert and query text data. Behind the scenes, the text data is converted to dense and sparse vectors. You can create your index with a dense and sparse embedding model to use this feature.
+## 
+​
+Using Hybrid Indexes
+### 
+​
+Upserting Dense and Sparse Vectors
+You can upsert dense and sparse vectors into Upstash Vector indexes in two different ways.
+#### 
+​
+Upserting Dense and Sparse Vectors
+You can upsert dense and sparse vectors into the index as follows:
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index, Vector
+from upstash_vector.types import SparseVector
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.upsert(
+    vectors=[
+        Vector(id="id-0", vector=[0.1, 0.5], sparse_vector=SparseVector([1, 2], [0.1, 0.2])),
+        Vector(id="id-1", vector=[0.3, 0.7], sparse_vector=SparseVector([123, 44232], [0.5, 0.4])),
+    ]
+)
+
+```
+
+Note that, for hybrid indexes, you have to provide both dense and sparse vectors. You can’t omit one or both.
+#### 
+​
+Upserting Text Data
+If you created the hybrid index with Upstash-hosted dense and sparse embedding models, you can upsert text data, and Upstash can embed it behind the scenes.
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index, Vector
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.upsert(
+    vectors=[
+        Vector(id="id-0", data="Upstash Vector provides dense and sparse embedding models."),
+        Vector(id="id-1", data="You can upsert text data with these embedding models."),
+    ]
+)
+
+```
+
+### 
+​
+Querying Dense and Sparse Vectors
+Similar to upserts, you can query dense and sparse vectors in two different ways.
+#### 
+​
+Querying with Dense and Sparse Vectors
+Hybrid indexes can be queried by providing dense and sparse vectors.
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+from upstash_vector.types import SparseVector
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.query(
+    vector=[0.5, 0.4],
+    sparse_vector=SparseVector([3, 5], [0.3, 0.5]),
+    top_k=5,
+    include_metadata=True,
+)
+
+```
+
+The query results will be fused scores from the dense and sparse indexes.
+#### 
+​
+Querying with Text Data
+If you created the hybrid index with Upstash-hosted dense and sparse embedding models, you can query with text data, and Upstash can embed it behind the scenes before performing the actual query.
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.query(
+    data="Upstash Vector",
+    top_k=5,
+)
+
+```
+
+### 
+​
+Fusing Dense And Sparse Query Scores
+One of the most crucial parts of the hybrid search pipeline is the step where we fuse or rerank dense and sparse search results. By default, Upstash returns the hybrid query results by fusing/reranking the dense and the sparse search results. It provides two fusing algorithms to choose from to do so.
+#### 
+​
+Reciprocal Rank Fusion
+RRF is a method for combining results from dense and sparse indexes. It focuses on the order of results, not their scores. Each result’s score is mapped using the formula:
+Copy
+Ask AI
+```
+Mapped Score = 1 / (rank + K)
+
+```
+
+Here, rank is the position of the result in the dense or sparse scores, and `K` is a constant set to `60`. If a result appears in both the dense and sparse indexes, its mapped scores are added together. If it appears in only one of the indexes, its score remains unchanged. After all scores are processed, the results are sorted by their combined scores, and the top-K results are returned. RRF effectively combines rankings from different sources, making use of their strengths, while keeping the process simple and focusing on the order of results. By default, hybrid indexes use RRF to fuse dense and sparse scores. It can be explicitly set for queries as follows:
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+from upstash_vector.types import FusionAlgorithm, SparseVector
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.query(
+    vector=[0.5, 0.4],
+    sparse_vector=SparseVector([3, 5], [0.3, 0.5]),
+    fusion_algorithm=FusionAlgorithm.RRF,
+)
+
+```
+
+#### 
+​
+Distribution-Based Score Fusion
+DBSF is a method for combining results from dense and sparse indexes by considering the distribution of scores. Each score is normalized using the formula:
+Copy
+Ask AI
+```
+                        s − (μ − 3 * σ)
+Normalized Score = -------------------------
+                   (μ + 3 * σ) − (μ − 3 * σ)
+
+```
+
+Where:
+  * `s` is the score.
+  * `μ` is the mean of the scores.
+  * `σ` is the standard deviation.
+  * `(μ − 3 * σ)` represents the minimum value (lower tail of the distribution).
+  * `(μ + 3 * σ)` represents the maximum value (upper tail of the distribution).
+
+This formula scales each score to fit between 0 and 1 based on the range defined by the distribution’s tails. If a result appears in both the dense and sparse indexes, the normalized scores are added together. For results that appear in only one index, the individual normalized score is used. After all scores are processed, the results are sorted by their combined scores, and the top-K results are returned. Unlike RRF, this approach takes the distribution of scores into account, making it more sensitive to variations in score ranges from the dense and sparse indexes. It can be used in hybrid index queries as follows:
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+from upstash_vector.types import FusionAlgorithm, SparseVector
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.query(
+    vector=[0.5, 0.4],
+    sparse_vector=SparseVector([3, 5], [0.3, 0.5]),
+    fusion_algorithm=FusionAlgorithm.DBSF,
+)
+
+```
+
+#### 
+​
+Using a Custom Reranker
+For some use cases, you might need something other than RRF or DBSF. Maybe you want to use the bge-reranker-v2-m3, or any reranker model or algorithm of your choice on the dense and sparse components of the hybrid index. For such scenarios, hybrid indexes allow you to perform queries over only dense and only sparse components. This way, the hybrid index would return semantically similar vectors from the dense index, and exact query matches from the sparse index. Then, you can rerank them as you like.
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+from upstash_vector.types import SparseVector
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+dense_results = index.query(
+    vector=[0.5, 0.4],
+)
+
+sparse_results = index.query(
+    sparse_vector=SparseVector([3, 5], [0.3, 0.5]),
+)
+
+# Rerank dense and sparse results as you like here
+
+```
+
+#### 
+​
+Using a Custom Reranker with Text Data
+Similar the section above, you might want to use a custom reranker for the hybrid indexes created with Upstash-hosted embedding models. For such scenarios, hybrid indexes with Upstash-hosted embedding models allow you to perform queries over only dense and only sparse components. This way, the hybrid index would return semantically similar vectors from the dense index by embedding the text data into a dense vector, and exact query matches from the sparse index by embedding the text data into a sparse vector. Then, you can rerank them as you like.
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+from upstash_vector.types import SparseVector, QueryMode
+
+index = Index(
+    url="UPSTASH_VECTOR_REST_URL",
+    token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+dense_results = index.query(
+    data="Upstash Vector",
+    query_mode=QueryMode.DENSE,
+)
+
+sparse_results = index.query(
+    data="Upstash Vector",
+    query_mode=QueryMode.SPARSE,
+)
+
+# Rerank dense and sparse results as you like here
+
+```
+
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+Similarity FunctionsSparse Indexes
+Assistant
+Responses are generated using AI and may contain mistakes.

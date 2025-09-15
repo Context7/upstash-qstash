@@ -1,0 +1,71 @@
+On this page
+upstash-redis is an HTTP/REST based Redis client built on top of Upstash REST API. For more information, refer to the documentation of Upstash redis client (TypeScript & Python). It is the only connectionless (HTTP based) Redis client and designed for:
+  * Serverless functions (AWS Lambda …)
+  * Cloudflare Workers (see the example)
+  * Fastly Compute@Edge
+  * Next.js, Jamstack …
+  * Client side web/mobile applications
+  * WebAssembly
+  * and other environments where HTTP is preferred over TCP.
+
+See the list of APIs supported.
+## 
+​
+Quick Start
+### 
+​
+Install
+Copy
+Ask AI
+```
+npm install @upstash/redis
+
+```
+
+### 
+​
+Usage
+Copy
+Ask AI
+```
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: "UPSTASH_REDIS_REST_URL",
+  token: "UPSTASH_REDIS_REST_TOKEN",
+});
+
+(async () => {
+  try {
+    const data = await redis.get("key");
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+```
+
+If you define `UPSTASH_REDIS_REST_URL` and`UPSTASH_REDIS_REST_TOKEN` environment variables, you can load them automatically.
+Copy
+Ask AI
+```
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv()(async () => {
+  try {
+    const data = await redis.get("key");
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+```
+
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+Connect Your ClientUpgrade Your Database
+Assistant
+Responses are generated using AI and may contain mistakes.

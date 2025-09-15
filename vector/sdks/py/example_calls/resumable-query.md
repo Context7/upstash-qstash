@@ -1,0 +1,210 @@
+On this page
+The resumable query feature allows you to perform queries that can be resumed to fetch additional results. This is particularly useful for large result sets or when implementing pagination.
+## 
+​
+Synchronous Usage
+### 
+​
+Creating a Resumable Query
+To create a resumable query, use the `resumable_query` method of the `Index` class:
+Copy
+Ask AI
+```
+query = index.resumable_query(
+    vector=[0.1, 0.2],  # or use 'data' parameter for text-based queries
+    top_k=2,
+    include_metadata=True,
+    include_vectors=True,
+    namespace="your_namespace"
+)
+
+```
+
+Parameters:
+  * `vector`: The reference vector for similarity comparison.
+  * `sparse_vector`: The sparse vector value to query.
+  * `data`: A string for text-based queries (mutually exclusive with vector).
+  * `include_metadata`: A boolean flag indicating whether to include metadata in the query results.
+  * `include_vector`: A boolean flag indicating whether to include vectors in the query results.
+  * `include_data`: A boolean flag indicating whether to include data in the query results.
+  * `top_k`: The number of top matching vectors to retrieve.
+  * `filter`: Metadata filtering of the vector is used to query your data based on the filters and narrow down the query results.
+  * `namespace`: The namespace to use. When not specified, the default namespace is used.
+  * `weighting_strategy`: Weighting strategy to be used for sparse vectors.
+  * `fusion_algorithm`: Fusion algorithm to use while fusing scores from hybrid vectors.
+  * `query_mode`: Query mode for hybrid indexes with Upstash-hosted embedding models.
+  * `max_idle`: The maximum idle time for the query in seconds.
+
+
+### 
+​
+Starting the Query
+To start the query and get initial results:
+Copy
+Ask AI
+```
+initial_results = query.start()
+
+```
+
+The initial_results will be a list of result objects, each having properties like id and metadata (if included).
+### 
+​
+Fetching More Results
+To fetch additional results:
+Copy
+Ask AI
+```
+next_results = query.fetch_next(number_of_results)
+
+```
+
+This method returns a list of additional results. If no more results are available, it returns an empty list.
+### 
+​
+Stopping the Query
+When you’re done with the query, stop it to release resources:
+Copy
+Ask AI
+```
+stop_result = query.stop()
+assert stop_result == 'Success'
+
+```
+
+### 
+​
+Asynchronous Usage
+For asynchronous operations, use the AsyncIndex class:
+#### 
+​
+Creating an Async Resumable Query
+Copy
+Ask AI
+```
+query = await async_index.resumable_query(
+  vector=[0.1, 0.2],
+  top_k=2,
+  include_metadata=True,
+  include_vectors=True,
+  namespace='your_namespace'
+)
+
+```
+
+#### 
+​
+Starting the Async Query
+Copy
+Ask AI
+```
+initial_results = await query.async_start()
+
+```
+
+#### 
+​
+Fetching More Results Asynchronously
+Copy
+Ask AI
+```
+next_results = await query.async_fetch_next(number_of_results)
+
+```
+
+#### 
+​
+Stopping the Async Query
+Copy
+Ask AI
+```
+stop_result = await query.async_stop()
+assert stop_result == 'Success'
+
+```
+
+#### 
+​
+Error Handling
+After stopping a query, attempting to fetch more results or stop it again will raise a `ClientError`:
+Copy
+Ask AI
+```
+with pytest.raises(ClientError):
+  query.fetch_next(1)
+  query.async_fetch_next(1)
+
+for async with pytest.raises(ClientError):
+  query.stop() # or await query.async_stop() for async
+
+```
+
+Example: Fetching All Results Here’s an example of how to fetch all results using a resumable query:
+Copy
+Ask AI
+```
+query = index.resumable_query(
+  vector=[0.1, 0.2],
+  top_k=2,
+  include_metadata=True
+)
+results = query.start()
+while True:
+  next_batch = query.fetch_next(2)
+  if not next_batch:
+    break
+  results.extend(next_batch)
+query.stop()
+
+```
+
+This pattern allows you to efficiently retrieve large result sets without loading everything into memory at once.
+Remember to always stop your query when you’re done to release server-side resources.
+### 
+​
+Example
+Copy
+Ask AI
+```
+from upstash_vector import Index
+
+# Create an index instance
+index = Index()
+
+# Upsert vectors into the index
+index.upsert(
+    vectors=[
+        ("id1", [0.1, 0.2], {"field": "value1"}),
+        ("id2", [0.3, 0.4], {"field": "value2"}),
+        ("id3", [0.5, 0.6], {"field": "value3"}),
+    ],
+    namespace="example-namespace"
+)
+
+# Start a resumable query
+query = index.resumable_query(
+    vector=[0.1, 0.2],
+    top_k=2,
+    include_metadata=True,
+    include_vectors=True,
+    namespace="example-namespace"
+)
+
+# Fetch initial results
+results = query.start()
+
+# Access result data
+for result in results:
+    print(f"ID: {result.id}, Metadata: {result.metadata}")
+
+# Stop the query when done
+query.stop()
+
+```
+
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+QueryRange
+Assistant
+Responses are generated using AI and may contain mistakes.

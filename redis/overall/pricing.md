@@ -1,0 +1,170 @@
+## 
+​
+Free Tier
+  * 256MB data size
+  * 500K commands per month
+  * One free database per account
+
+
+## 
+​
+Pay-as-you-go Pricing
+  * Request Price: $0.20 per 100K requests
+  * Bandwidth Price: First 200GB free, then $0.03/GB
+  * Storage Price: $0.25/GB
+
+
+## 
+​
+All Plans and Limits
+Plan| Price| Read Region Price| Max Data Size| Max Bw GB Monthly| Max Req Per Sec| Max Request Size| Max Record| Max Connections  
+---|---|---|---|---|---|---|---|---  
+Free| $0| $0| 256MB| 10G| 10000| 10MB| 100MB| 10000  
+Pay-as-you-go| $0| $0| 100GB| Unlimited| 10000| 10MB| 100MB| 10000  
+Fixed 250MB| $10| $5| 250MB| 50GB| 10000| 10MB| 100MB| 10000  
+Fixed 1GB| $20| $10| 1GB| 100GB| 10000| 10MB| 200MB| 10000  
+Fixed 5GB| $100| $50| 5GB| 500GB| 10000| 20MB| 300MB| 10000  
+Fixed 10GB| $200| $100| 10GB| 1TB| 10000| 30MB| 400MB| 10000  
+Fixed 50GB| $400| $200| 50GB| 5TB| 10000| 50MB| 500MB| 10000  
+Fixed 100GB| $800| $400| 100GB| 10TB| 16000| 75MB| 1GB| 10000  
+Fixed 500GB| $1500| $750| 500GB| 20TB| 16000| 100MB| 5GB| 100000  
+Enterprise| Custom| Custom| 10TB| Unlimited| Custom| 500MB| 5GB| 100000  
+## 
+​
+Prod Pack
+  * $200/month per database
+  * Uptime SLA
+  * SOC 2 Type 2 report
+  * Advanced monitoring (Prometheus, Grafana, Datadog)
+  * High Availability for Read Regions
+  * Role-based access control (RBAC)
+  * Encryption at Rest
+
+
+## 
+​
+Enterprise subscription
+  * All features of Prod pack for all your databases
+  * Dedicated professional support
+  * Dedicated technical account manager
+  * Unlimited databases
+  * HIPAA compliance
+  * VPC peering
+  * SSO integration
+  * Custom pricing with monthly or annual contract options
+
+
+## 
+​
+Custom Quota Pricing (Pay-as-you-go)
+### 
+​
+Request Size Limits
+Max Request Size| Value $ per month  
+---|---  
+10MB| $50  
+50MB| $80  
+100MB| $120  
+more| contact us  
+### 
+​
+Collection Size Limits
+Max Record Size| Value $ per month  
+---|---  
+250MB| $60  
+500MB| $100  
+1GB| $180  
+more| contact us  
+### 
+​
+Number of Databases
+Number of Databases| Price per month  
+---|---  
+First 10| Free  
+10-100| $0.5 per DB  
+more| contact us  
+## 
+​
+FAQs
+### 
+​
+How can I upgrade to pay as you go from free tier?
+Once you enter your credit card, your database will be upgraded to the pay-as-you-go plan and limits will be updated.
+### 
+​
+What is included in free tier?
+In free tier includes 256MB data size and 500K commands per month.
+### 
+​
+Are paid database’s first 256MB data and 500K commands free?
+No. Once you upgrade to paid tier, you will be charged for the data size and commands.
+### 
+​
+How does the budget work?
+Budget is only available for pay-as-you-go plan. With the Pay As you go plan, you can set a maximum monthly budget for your database so that you won’t be charged beyond this chosen limit. We’ll keep you informed by sending email notifications once you reach 70% and 90% of your monthly budget. This notifications will let you either adjust your budget limit or upgrade to the Pro tier. Note that if your usage exceeds your monthly budget cap, your database will be rate limited extensively and your cost will not exceed your chosen budget limit. Please set your budget limit high enough to avoid service disruption.
+### 
+​
+Are all Redis commands counted in billing?
+Operational commands like AUTH, HELLO, SELECT, COMMAND, CONFIG, INFO, PING, RESET, QUIT will not be charged.
+### 
+​
+Are databases faster in higher plans?
+Ops/sec limit is same in most initial plans, while our higher plans provide higher throughput as well as increasing other limits. There is no performance difference between plans within the limits.
+### 
+​
+Are read and write commands same price?
+Yes. But for Global databases, the write commands are replicated to all read regions in addition to primary region. Replications (write operations) are also counted as commands. For example, if you have 1 primary 1 read region, 100K writes will cost 0.4(0.4 (0.4(0.2 x 2)
+### 
+​
+How is the storage cost calculated for pay-as-you-go plan?
+For each database the first 1GB is free. Beyond that, the storage cost is charged at a rate of $0.25 per GB total storage. Total storage is determined by adding up the storage at all replicas and regions. Even if you do not access your data, we have to keep it persistent in Cloud Provider’s block storage (eg AWS EBS) in multiple replicas for durability and high availability. To calculate the total storage cost, we take daily average of your total data size in all replicas and multiply with the rate at the end of the month. If you are using your database as a cache; then it is a good practice to set a timeout (EXPIRE) for your keys to minimize the cost.
+### 
+​
+What happens when I hit limits on pay-as-you-go plan?
+For each limit exceeded, you will be notified via email. We will do our best to keep your database running but we may rate limit depending on the case. For concurrent connections, if you hit the limit, your database will start rejecting new connections. This can cause extra latency on your clients. For max request size, the requests exceeding the limit will be rejected with an exception. For max record size, the collection that exceeds the limit will stop accepting new records. For bandwidth and storage, there are no limits but you can set a budget limit to avoid unexpected charges.
+### 
+​
+What happens when I hit limits on fixed plans?
+For each limit exceeded, you will be notified via email. When your database hits the bandwidth and storage limits and if you have enabled auto-upgrade, your database will be upgraded to the one upper tier. When auto-upgrade is not enabled, your database will be rate limited which means your traffic will be blocked for bandwidth case, your write operations will be blocked for storage case. For concurrent connections, if you hit the limit, your database will start rejecting new connections. This can cause extra latency on your clients. For max request size, the requests exceeding the limit will be rejected with an exception. For max record size, the collection that exceeds the limit will stop accepting new records.
+### 
+​
+Are there free trials?
+Yes, we can provide free trials for testing and PoC purposes. Email us at support@upstash.com
+### 
+​
+How many databases can I create?
+You can create up to 10 databases for free and beyond this you will be charged $0.5 per database up to 100 databases. For more than 100 databases, please contact us at support@upstash.com The charge is calculated based on the number of active databases at the end of the month.
+### 
+​
+What happens if I delete my database after 2-3 days?
+For fixed plans, you’ll be charged pro-rata for the days the database was active (in this case, 2-3 days), regardless of whether you actively used the database or not. For pay-as-you-go plans, you’ll only be charged for your actual usage during those 2-3 days.
+### 
+​
+How much is the price for bandwidth?
+For pay is you go plan, it is free up to monthly bandwidth limit of 200GB. Beyond that, we charge $0.03 for each additional GB data transfer. For fixed plans, bandwidth is included in the price, so you will not be charged for it. For use cases with high volume, you may consider VPC Peering which minimizes the data transfer cost. VPC Peering requires Enterprise contract. Contact us at support@upstash.com for details. Bandwidth price depends on cloud provider’s fee for the traffic so it is subject to change. In case of any changes, we will notify you via email.
+### 
+​
+Can I purchase Prod Pack for any plan?
+Yes, you can purchase Prod Pack for any plan except Free tier. You can enable it in your Upstash Dashboard database details page.
+### 
+​
+What is included in Prod Pack?
+It includes uptime SLA, SOC 2 Type 2 report, advanced monitoring (Prometheus, Grafana, Datadog), and role-based access control (RBAC).
+### 
+​
+What is included in Enterprise subscription?
+All the features of Prod pack will be available for all your databases. Moreover, dedicated professional support, HIPAA compliance, VPC peering, Private link and SSO integration will be available at request.
+### 
+​
+How is the Enterprise subscription priced?
+For Enterprise subscription, a custom price is set based on specific requirements of the customer. For more information email us at sales@upstash.com
+### 
+​
+Do you have the Professional Support plan?
+Professional support includes a dedicated service desk along and a Slack/Discord channel with a committed response time SLA. Check Professional Support for details.
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+Getting StartedRedis® API Compatibility
+Assistant
+Responses are generated using AI and may contain mistakes.

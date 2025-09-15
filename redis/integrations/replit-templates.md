@@ -1,0 +1,21 @@
+On this page
+## 
+​
+Overview
+Explore our collection of example templates showcasing Upstash’s capabilities with different frameworks and use cases. Each template comes with a live demo and source code on Replit.
+## Redis Web Caching
+Cache SQL queries using Upstash Redis to speed up read requests
+## Rate Limiting Dashboard
+Implement robust rate limiting using Upstash Redis in a web application
+## Real-time Chat
+Build a real-time chat application using Upstash Redis Pub/Sub with Python
+## RAG Chat Application
+Create an AI chat app with context retrieval using Upstash Vector and Redis
+## Vector Search
+Implement powerful web search using Upstash Vector Hybrid Search
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+VercelEMQX
+Assistant
+Responses are generated using AI and may contain mistakes.

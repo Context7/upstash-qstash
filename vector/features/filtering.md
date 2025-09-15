@@ -1,0 +1,329 @@
+On this page
+You can further restrict the vector similarity search by providing a filter based on a specific metadata criteria. Queries with metadata filters only return vectors which have metadata matching with the filter. Upstash Vector allows you to filter keys which have the following value types:
+  * string
+  * number
+  * boolean
+  * object
+  * array
+
+Filtering is implemented as a combination of in and post-filtering. Every query is assigned a filtering budget, determining the number of candidate vectors that can be compared against the filter during query execution. If this budget is exceeded, the system fallbacks into post-filtering. Therefore, with highly selective filters, fewer than `topK` vectors may be returned.
+## 
+​
+Filter Syntax
+A filter has a syntax that resembles SQL, which consists of operators on object keys and boolean operators to combine them. Assuming you have a metadata like below:
+Copy
+Ask AI
+```
+{
+    "city": "Istanbul",
+    "country": "Turkey",
+    "is_capital": false,
+    "population": 15460000,
+    "geography": {
+        "continent": "Asia",
+        "coordinates": {
+            "latitude": 41.0082,
+            "longitude": 28.9784
+        }
+    },
+    "economy": {
+        "currency": "TRY",
+        "major_industries": [
+            "Tourism",
+            "Textiles",
+            "Finance"
+        ]
+    }
+}
+
+```
+
+Then, you can query similar vectors with a filter like below:
+  * Python
+  * JavaScript
+  * Go
+  * PHP
+  * curl
+
+
+Copy
+Ask AI
+```
+from upstash_vector import Index
+
+index = Index(
+  url="UPSTASH_VECTOR_REST_URL",
+  token="UPSTASH_VECTOR_REST_TOKEN",
+)
+
+index.query(
+  vector=[0.9215, 0.3897],
+  filter="population >= 1000000 AND geography.continent = 'Asia'",
+  top_k=5,
+  include_metadata=True
+)
+
+```
+
+### 
+​
+Operators
+#### 
+​
+Equals (=)
+The `equals` operator filters keys whose values are equal to the given literal. It is applicable to _string_ , _number_ , and _boolean_ values.
+Copy
+Ask AI
+```
+country = 'Turkey' AND population = 15460000 AND is_capital = false
+
+```
+
+#### 
+​
+Not Equals (!=)
+The `not equals` operator filters keys whose values are not equal to the given literal. It is applicable to _string_ , _number_ , and _boolean_ values.
+Copy
+Ask AI
+```
+country != 'Germany' AND population != 12500000 AND is_capital != true
+
+```
+
+#### 
+​
+Less Than (<)
+The `less than` operator filters keys whose values are less than the given literal. It is applicable to _number_ values.
+Copy
+Ask AI
+```
+population < 20000000 OR geography.coordinates.longitude < 30.0
+
+```
+
+#### 
+​
+Less Than or Equals (<=)
+The `less than or equals` operator filters keys whose values are less than or equal to the given literal. It is applicable to _number_ values.
+Copy
+Ask AI
+```
+population <= 20000000 OR geography.coordinates.longitude <= 30.0
+
+```
+
+#### 
+​
+Greater Than (>)
+The `greater than` operator filters keys whose values are greater than the given literal. It is applicable to _number_ values.
+Copy
+Ask AI
+```
+population > 10000000 OR geography.coordinates.latitude > 39.5
+
+```
+
+#### 
+​
+Greater Than or Equals (>=)
+The `greater than or equals` operator filters keys whose values are greater than or equal to the given literal. It is applicable to _number_ values.
+Copy
+Ask AI
+```
+population >= 10000000 OR geography.coordinates.latitude >= 39.5
+
+```
+
+#### 
+​
+Glob
+The `glob` operator filters keys whose values match with the given UNIX glob pattern. It is applicable to _string_ values. It is a case sensitive operator. The glob operator supports the following wildcards:
+  * `*` matches zero or more characters.
+  * `?` matches exactly one character.
+  * `[]` matches one character from the list 
+    * `[abc]` matches either `a`, `b`, or `c`.
+    * `[a-z]` matches one of the range of characters from `a` to `z`.
+    * `[^abc]` matches any one character other than `a`, `b`, or `c`.
+    * `[^a-z]` matches any one character other than `a` to `z`.
+
+For example, the filter below would only match with city names whose second character is `s` or `z`, and ends with anything other than `m` to `z`.
+Copy
+Ask AI
+```
+city GLOB '?[sz]*[^m-z]'
+
+```
+
+#### 
+​
+Not Glob
+The `not glob` operator filters keys whose values do not match with the given UNIX glob pattern. It is applicable to _string_ values. It has the same properties with the glob operator. For example, the filter below would only match with city names whose first character is anything other than `A`.
+Copy
+Ask AI
+```
+city NOT GLOB 'A*'
+
+```
+
+#### 
+​
+In
+The `in` operator filters keys whose values are equal to any of the given literals. It is applicable to _string_ , _number_ , and _boolean_ values.
+Copy
+Ask AI
+```
+country IN ('Germany', 'Turkey', 'France')
+
+```
+
+Semantically, it is equivalent to equals operator applied to all of the given literals with `OR` boolean operator in between:
+Copy
+Ask AI
+```
+country = 'Germany' OR country = 'Turkey' OR country = 'France'
+
+```
+
+#### 
+​
+Not In
+The `not in` operator filters keys whose values are not equal to any of the given literals. It is applicable to _string_ , _number_ , and _boolean_ values.
+Copy
+Ask AI
+```
+economy.currency NOT IN ('USD', 'EUR')
+
+```
+
+Semantically, it is equivalent to not equals operator applied to all of the given literals with `AND` boolean operator in between:
+Copy
+Ask AI
+```
+economy.currency != 'USD' AND economy.currency != 'EUR'
+
+```
+
+#### 
+​
+Contains
+The `contains` operator filters keys whose values contain the given literal. It is applicable to _array_ values.
+Copy
+Ask AI
+```
+economy.major_industries CONTAINS 'Tourism'
+
+```
+
+#### 
+​
+Not Contains
+The `not contains` operator filters keys whose values do not contain the given literal. It is applicable to _array_ values.
+Copy
+Ask AI
+```
+economy.major_industries NOT CONTAINS 'Steel Production'
+
+```
+
+#### 
+​
+Has Field
+The `has field` operator filters keys which have the given JSON field.
+Copy
+Ask AI
+```
+HAS FIELD geography.coordinates
+
+```
+
+#### 
+​
+Has Not Field
+The `has not field` operator filters keys which do not have the given JSON field.
+Copy
+Ask AI
+```
+HAS NOT FIELD geography.coordinates.longitude
+
+```
+
+### 
+​
+Boolean Operators
+Operators above can be combined with `AND` and `OR` boolean operators to form compound filters.
+Copy
+Ask AI
+```
+country = 'Turkey' AND population > 10000000
+
+```
+
+Boolean operators can be grouped with parentheses to have higher precedence.
+Copy
+Ask AI
+```
+country = 'Turkey' AND (population > 10000000 OR is_capital = false)
+
+```
+
+When no parentheses are provided in ambiguous filters, `AND` will have higher precedence than `OR`. So, the filter
+Copy
+Ask AI
+```
+country = 'Turkey' AND population > 10000000 OR is_capital = false
+
+```
+
+would be equivalent to
+Copy
+Ask AI
+```
+(country = 'Turkey' AND population > 10000000) OR is_capital = false
+
+```
+
+### 
+​
+Filtering Nested Objects
+It is possible to filter nested object keys by referencing them with the `.` accessor. Nested objects can be at arbitrary depths, so more than one `.` accessor can be used in the same identifier.
+Copy
+Ask AI
+```
+economy.currency != 'USD' AND geography.coordinates.latitude >= 35.0
+
+```
+
+### 
+​
+Filtering Array Elements
+Apart from the `CONTAINS` and `NOT CONTAINS` operators, individual array elements can also be filtered by referencing them with the `[]` accessor by their indexes. Indexing is zero based.
+Copy
+Ask AI
+```
+economy.major_industries[0] = 'Tourism'
+
+```
+
+Also, it is possible to index from the back using the `#` character with negative values. `#` can be thought as the number of elements in the array, so `[#-1]` would reference the last element.
+Copy
+Ask AI
+```
+economy.major_industries[#-1] = 'Finance'
+
+```
+
+### 
+​
+Miscellaneous
+  * Identifiers (the left side of the operators) should be of the form `[a-zA-Z_][a-zA-Z_0-9.[\]#-]*`. In simpler terms, they should start with characters from the English alphabet or `_`, and can continue with same characters plus numbers and other accessors like `.`, `[0]`, or `[#-1]`.
+  * The string literals (strings in the right side of the operators) can be either single or double quoted.
+  * Boolean literals are represented as `1` or `0`.
+  * The operators, boolean operators, and boolean literals are case insensitive.
+
+
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+Metadata and DataEmbedding Models
+Assistant
+Responses are generated using AI and may contain mistakes.

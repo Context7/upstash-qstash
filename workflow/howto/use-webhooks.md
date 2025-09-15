@@ -1,0 +1,142 @@
+On this page
+This guide explains how to handle webhooks effectively in your Upstash Workflow applications. We’ll walk through:
+  * setting up webhook endpoints
+  * verifying webhook requests
+  * and processing webhook events
+
+
+## GitHub Repository
+You can find the project source code on GitHub.
+## 
+​
+Overview
+Webhooks allow external services to notify your application when events occur. For example, you can use webhooks to receive notifications when a new order is placed in your e-commerce store, a new user signs up, or a new message is sent in your chat application. Upstash Workflow provides a simple way to receive these events and trigger workflows based on the incoming data autonomously.
+### 
+​
+Setting Up Webhook Endpoints
+#### 
+​
+Basic Setup
+To create a webhook endpoint, use the `serve` function from `@upstash/workflow`:
+TypeScript
+Python
+Copy
+Ask AI
+```
+import { serve } from "@upstash/workflow/nextjs";
+
+export const { POST } = serve(
+  async (context) => {
+    // Your webhook handling logic here
+  },
+  {
+    initialPayloadParser: (payload) => {
+      return payload;
+    },
+  }
+);
+
+```
+
+#### 
+​
+Request Validation
+Always validate incoming webhook requests to ensure they’re legitimate. This way, no one other than the original webhook source can trigger your workflow. Here’s an example using Clerk webhooks with Svix:
+Validate and Parse in Workflow - TypeScript
+Validate and Parse in Workflow - Python
+Validation Function - TypeScript
+Copy
+Ask AI
+```
+export const { POST } = serve<string>(async (context) => {
+	const payloadString = context.requestPayload;
+	const headerPayload = context.headers;
+
+    let event: WebhookEvent;
+    try {
+    	event = await validateRequest(payloadString, headerPayload);
+    } catch {
+    	return
+    }
+
+    // Next steps based on the event
+
+})
+
+
+```
+
+### 
+​
+Handling Webhook events
+Use the context.run method to process webhook events in discrete, trackable steps:
+TypeScript
+Python
+Copy
+Ask AI
+```
+export const { POST } = serve(async (context) => {
+  // ... Parse and validate the incoming request
+
+  const user = await context.run<false | UserPayload>(
+    "handle-webhook-event",
+    async () => {
+      if (event.type === "user.created") {
+        const { id: clerkUserId, email_addresses, first_name } = event.data;
+        const primaryEmail = email_addresses.find(
+          (email) => (email.id = event.data.primary_email_address_id)
+        );
+
+        if (!primaryEmail) {
+          return false;
+        }
+
+        return {
+          event: event.type,
+          userId: clerkUserId,
+          email: primaryEmail.email_address,
+          firstName: first_name,
+        } as UserPayload;
+      }
+      return false;
+    }
+  );
+});
+
+```
+
+After validating the webhook and extracting the initial user data, you’ll often need to perform additional operations like creating customer records, sending welcome emails etc.
+TypeScript
+Python
+Copy
+Ask AI
+```
+export const { POST } = serve(async (context) => {
+  // ... Previous validation and user data extraction
+
+  if (!user) {
+    return;
+  }
+
+  const customer = await context.run("create-stripe-customer", async () => {
+    return await stripe.customers.create({
+      email: user.email,
+      name: `${user.firstName} ${user.lastName}`,
+      metadata: {
+        userId: user.userId,
+      },
+    });
+  });
+
+  /// ... Additional steps
+});
+
+```
+
+You’re now ready to perform any operation in the following steps.
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+Local DevelopmentMigrate to the New SDK
+Assistant
+Responses are generated using AI and may contain mistakes.

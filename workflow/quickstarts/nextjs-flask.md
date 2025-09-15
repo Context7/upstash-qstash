@@ -1,0 +1,159 @@
+On this page
+## GitHub Repository
+You can find the project source code on GitHub.
+This guide provides detailed, step-by-step instructions on how to use and deploy Upstash Workflow with Next.js & Flask. You can also explore the source code for a detailed, end-to-end example and best practices.
+## 
+​
+Prerequisites
+  1. An Upstash QStash API key.
+  2. Node.js and npm (or another package manager) installed.
+  3. Python and pip installed.
+
+If you haven’t obtained your QStash API key yet, you can do so by signing up for an Upstash account and navigating to your QStash dashboard.
+## 
+​
+Step 1: Setup
+Clone the Next.js & Flask example:
+Copy
+Ask AI
+```
+git clone https://github.com/upstash/workflow-py.git
+cd workflow-py/examples/nextjs-flask
+
+```
+
+## 
+​
+Step 2: Installation
+Create a virtual environment and activate it:
+Terminal
+Copy
+Ask AI
+```
+python -m venv venv
+source venv/bin/activate
+
+```
+
+Install the dependencies:
+Copy
+Ask AI
+```
+npm install
+
+```
+
+## 
+​
+Step 3: Configure Environment Variables
+Create a `.env` file in your project root and add your QStash token. This token is used to authenticate your application with the QStash service.
+Terminal
+Copy
+Ask AI
+```
+touch .env
+
+```
+
+Upstash Workflow is powered by QStash, which requires access to your endpoint to execute workflows. When your app is deployed, QStash will use the app’s URL. However, for local development, you have two main options: use a local QStash server or set up a local tunnel.
+### 
+​
+Option 1: Local QStash Server
+To start the local QStash server, run:
+Copy
+Ask AI
+```
+npx @upstash/qstash-cli dev
+
+```
+
+Once the command runs successfully, you’ll see `QSTASH_URL` and `QSTASH_TOKEN` values in the console. Add these values to your `.env` file:
+.env
+Copy
+Ask AI
+```
+export QSTASH_URL="http://127.0.0.1:8080"
+export QSTASH_TOKEN=<QSTASH_TOKEN>
+
+```
+
+This approach allows you to test workflows locally without affecting your billing. However, runs won’t be logged in the Upstash Console.
+### 
+​
+Option 2: Local Tunnel
+Alternatively, you can set up a local tunnel. For this option:
+  1. Copy the `QSTASH_TOKEN` from the Upstash Console.
+  2. Update your `.env` file with the following:
+
+
+.env
+Copy
+Ask AI
+```
+export QSTASH_TOKEN="***"
+export UPSTASH_WORKFLOW_URL=<UPSTASH_WORKFLOW_URL>
+
+```
+
+  * Replace `***` with your actual QStash token.
+  * Set `UPSTASH_WORKFLOW_URL` to the public URL provided by your local tunnel.
+
+Here’s where you can find your QStash token:
+Using a local tunnel connects your endpoint to the production QStash, enabling you to view workflow logs in the Upstash Console.
+## 
+​
+Step 4: Start the Development Server
+Upstash Workflow is powered by QStash, and QStash needs a publicly accessible URL to run your workflows. Here’s how to set up your workflow endpoint for local development. In a nutshell, in local development, you can either use the QStash development server or use a local tunnel to make your workflow endpoint publicly accessible. Don’t forget to source your environment file to set your environment variables:
+Terminal
+Copy
+Ask AI
+```
+source .env
+
+```
+
+After defining the endpoint, you can trigger your workflow by starting your app:
+Copy
+Ask AI
+```
+npm run dev
+
+```
+
+Navigate to http://localhost:3000 to see your Next.js app in action. Flask will be running on http://localhost:8000.
+## 
+​
+Step 5: Deploying the Project at Vercel
+To deploy the project at vercel and try the endpoints, you should start with setting up the project by running:
+Terminal
+Copy
+Ask AI
+```
+vercel
+
+```
+
+Next, you shoud go to vercel.com, find your project and add `QSTASH_TOKEN`, to the project as environment variables. You can find this env variables from the Upstash Console. To learn more about other env variables and their use in the context of Upstash Workflow, you can read the Secure your Endpoint in our documentation. Once you add the env variables, you can deploy the project with:
+Terminal
+Copy
+Ask AI
+```
+vercel --prod
+
+```
+
+Note that the project won’t work in preview. It should be deployed to production like above. This is because preview requires authentication. Once you have the app deployed, you can go to the deployment and call the endpoints using the form on the page. You can observe the logs at Upstash console under the Worfklow tab or vercel.com to see your workflow operate.
+## 
+​
+Next Steps
+  1. Learn how to protect your workflow endpoint from unauthorized access by securing your workflow endpoint.
+  2. Explore the source code for a detailed, end-to-end example and best practices.
+  3. For setting up and testing your workflows in a local environment, check out our local development guide.
+
+
+Was this page helpful?
+YesNo
+Suggest editsRaise issue
+FlaskCreate a workflow
+Assistant
+Responses are generated using AI and may contain mistakes.
