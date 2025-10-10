@@ -1,0 +1,85 @@
+# Get a Queue
+
+> Retrieves a queue
+
+## Request
+
+<ParamField path="queueName" type="string" required>
+  The name of the queue to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="createdAt" type="int" required>
+  The creation time of the queue. UnixMilli
+</ResponseField>
+
+<ResponseField name="updatedAt" type="int" required>
+  The update time of the queue. UnixMilli
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The name of the queue.
+</ResponseField>
+
+<ResponseField name="parallelism" type="int" required>
+  The number of parallel consumers consuming from [the queue](/qstash/features/queues).
+</ResponseField>
+
+<ResponseField name="lag" type="int" required>
+  The number of unprocessed messages that exist in [the queue](/qstash/features/queues).
+</ResponseField>
+
+<RequestExample>
+  ```sh curl theme={"system"}
+  curl https://qstash.upstash.io/v2/queues/my-queue \
+    -H "Authorization: Bearer <token>"
+  ```
+
+  ```js Node theme={"system"}
+  const response = await fetch('https://qstash.upstash.io/v2/queue/my-queue', {
+    headers: {
+      'Authorization': 'Bearer <token>'
+    }
+  });
+  ```
+
+  ```python Python  theme={"system"}
+  import requests
+
+  headers = {
+      'Authorization': 'Bearer <token>',
+  }
+
+  response = requests.get(
+    'https://qstash.upstash.io/v2/queue/my-queue',
+     headers=headers
+  )
+  ```
+
+  ```go Go theme={"system"}
+  req, err := http.NewRequest("GET", "https://qstash.upstash.io/v2/queue/my-queue", nil)
+  if err != nil {
+    log.Fatal(err)
+  }
+  req.Header.Set("Authorization", "Bearer <token>")
+  resp, err := http.DefaultClient.Do(req)
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer resp.Body.Close()
+  ```
+</RequestExample>
+
+<ResponseExample>
+  ```json 200 OK theme={"system"}
+  {
+   
+    "createdAt": 1623345678001,
+    "updatedAt": 1623345678001,
+    "name": "my-queue",
+    "parallelism" : 5, 
+    "lag" : 100
+  }
+  ```
+</ResponseExample>
