@@ -1,0 +1,31 @@
+# Events
+
+<Info>
+  You can run the async code by importing `AsyncQStash` from `qstash`
+  and awaiting the methods.
+</Info>
+
+#### Get all events with pagination using cursor
+
+Since there can be a large number of events, they are paginated.
+You can go through the results using the `cursor`.
+
+```python  theme={"system"}
+from qstash import QStash
+
+client = QStash("<QSTASH-TOKEN>")
+
+all_events = []
+cursor = None
+while True:
+    res = client.event.list(cursor=cursor)
+    all_events.extend(res.events)
+    cursor = res.cursor
+    if cursor is None:
+        break
+```
+
+
+---
+
+> To find navigation and other pages in this documentation, fetch the llms.txt file at: https://upstash.com/docs/llms.txt
