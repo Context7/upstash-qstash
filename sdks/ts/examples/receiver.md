@@ -1,0 +1,28 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://upstash.com/docs/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Receiver
+
+When receiving a message from QStash, you should [verify the signature](/qstash/howto/signature).
+The QStash Typescript SDK provides a helper function for this.
+
+```typescript  theme={"system"}
+import { Receiver } from "@upstash/qstash";
+
+const receiver = new Receiver({
+  currentSigningKey: "YOUR_CURRENT_SIGNING_KEY",
+  nextSigningKey: "YOUR_NEXT_SIGNING_KEY",
+});
+
+// ... in your request handler
+
+const signature = req.headers["Upstash-Signature"];
+const body = req.body;
+
+const isValid = await receiver.verify({
+  body,
+  signature,
+  url: "YOUR-SITE-URL",
+});
+```
